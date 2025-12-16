@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Michel\Framework\Core;
 
-use Michel\Resolver\Option;
-use Michel\Resolver\OptionsResolver;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -24,30 +22,24 @@ final class App
 
     private function __construct(array $options)
     {
-        $resolver = new OptionsResolver([
-            Option::mixed('server_request')->validator(static function ($value) {
-                return $value instanceof \Closure;
-            }),
-            Option::mixed('server_request_factory')->validator(static function ($value) {
-                return $value instanceof \Closure;
-            }),
-            Option::mixed('response_factory')->validator(static function ($value) {
-                return $value instanceof \Closure;
-            }),
-            Option::mixed('container')->validator(static function ($value) {
-                return $value instanceof \Closure;
-            }),
-            Option::array('custom_environments')->validator(static function (array $value) {
-                $environmentsFiltered = array_filter($value, function ($value) {
-                    return is_string($value) === false;
-                });
-                if ($environmentsFiltered !== []) {
-                    throw new \InvalidArgumentException('custom_environments array values must be string only');
-                }
-                return true;
-            })->setOptional([]),
-        ]);
-        $this->options = $resolver->resolve($options);
+        $required = ['server_request', 'server_request_factory', 'response_factory', 'container'];
+        foreach ($required as $key) {
+            if (!isset($options[$key]) || !$options[$key] instanceof \Closure) {
+                 throw new \InvalidArgumentException(sprintf('The option "%s" is required and must be a Closure.', $key));
+            }
+        }
+        if (isset($options['custom_environments'])) {
+             $environmentsFiltered = array_filter($options['custom_environments'], function ($value) {
+                return is_string($value) === false;
+            });
+            if ($environmentsFiltered !== []) {
+                throw new \InvalidArgumentException('custom_environments array values must be string only');
+            }
+        } else {
+            $options['custom_environments'] = [];
+        }
+
+        $this->options = $options;
     }
 
     public static function initWithPath(string $path): void

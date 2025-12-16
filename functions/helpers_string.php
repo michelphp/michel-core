@@ -55,10 +55,25 @@ if (!function_exists('str_contains')) {
     }
 }
 
+if (!function_exists('human_readable_bytes')) {
+    function human_readable_bytes(int $size, int $precision = 2): string
+    {
+        if ($size <= 0) {
+            return '0 B';
+        }
+        $base = log($size, 1024);
+        $suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        $class = (int) floor($base);
+        return round(pow(1024, $base - $class), $precision) . ' ' . $suffixes[$class];
+    }
+}
+
 if (!function_exists('_m_convert')) {
+    /**
+     * @deprecated Use human_readable_bytes instead
+     */
     function _m_convert($size): string
     {
-        $unit = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+        return human_readable_bytes((int) $size);
     }
 }

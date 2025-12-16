@@ -10,9 +10,11 @@ use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorHandler;
 use Michel\Framework\Core\ErrorHandler\ExceptionHandler;
 use Michel\Framework\Core\Handler\RequestHandler;
+use Michel\Framework\Core\Http\Exception\HttpException;
 use Michel\Framework\Core\Http\Exception\HttpExceptionInterface;
 use InvalidArgumentException;
-use Michel\Framework\Core\Routing\ControllerFinder;
+use Michel\Framework\Core\Finder\ControllerFinder;
+use Michel\Package\PackageInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,7 +39,7 @@ use function sprintf;
 abstract class BaseKernel
 {
     private const DEFAULT_ENV = 'prod';
-    public const VERSION = '1.0.0-alpha';
+    public const VERSION = '0.0.1-alpha';
     public const NAME = 'MICHEL';
     private const DEFAULT_ENVIRONMENTS = [
         'dev',
@@ -74,7 +76,11 @@ abstract class BaseKernel
             $request = $request->withAttribute('debug_collector', $this->debugDataCollector);
 
             $requestHandler = new RequestHandler($this->container, $this->middlewareCollection);
-            return $requestHandler->handle($request);
+            $response =  $requestHandler->handle($request);
+            if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
+                throw new HttpException($response->getStatusCode(), $response->getReasonPhrase());
+            }
+            return $response;
         } catch (Throwable $exception) {
             if (!$exception instanceof HttpExceptionInterface) {
                 $this->logException($exception, $request);
@@ -149,8 +155,8 @@ abstract class BaseKernel
             throw new InvalidArgumentException('The log dir is empty, please set it in the Kernel.');
         }
 
-        if (!is_dir($logDir)) {
-            @mkdir($logDir, 0777, true);
+        if (!is_dir($logDir) && !mkdir($logDir, 0777, true) && !is_dir($logDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $logDir));
         }
         if ($logFile === null) {
             $logFile = $this->getEnv() . '.log';
@@ -201,19 +207,19 @@ abstract class BaseKernel
 
     private function configureErrorHandling(): void
     {
+        ini_set("log_errors", '1');
+        ini_set("error_log", $this->getLogDir() . '/error_log.log');
+
         if ($this->getEnv() === 'dev') {
             ErrorHandler::register();
             return;
         }
-        ini_set("log_errors", '1');
-        ini_set("error_log", $this->getLogDir() . '/error_log.log');
 
         ini_set("display_startup_errors", '0');
         ini_set("display_errors", '0');
         ini_set("html_errors", '0');
-        ini_set("track_errors", '0');
 
-        error_reporting(E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR);
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
     }
 
     private function configureTimezone(): void
@@ -237,7 +243,7 @@ abstract class BaseKernel
 
     private function loadDependencies(): void
     {
-        list($services, $parameters, $listeners, $routes, $commands, $packages, $controllers) = (new Dependency($this))->load();
+        list($services, $parameters, $listeners, $routes, $commands, $packages, $controllers) = $this->loadDependenciesConfiguration();
         $definitions = array_merge(
             $parameters,
             $services,
@@ -269,6 +275,58 @@ abstract class BaseKernel
         $this->container = $this->loadContainer($definitions);
         $this->debugDataCollector = $this->container->get(DebugDataCollector::class);
         unset($services, $parameters, $listeners, $routes, $commands, $packages, $controllers, $definitions);
+    }
+
+    private function loadDependenciesConfiguration(): array
+    {
+        $services = $this->loadConfigurationIfExists('services.php');
+        $parameters = $this->loadParameters();
+        $listeners = $this->loadConfigurationIfExists('listeners.php');
+        $routes = $this->loadConfigurationIfExists('routes.php');
+        $commands = $this->loadConfigurationIfExists('commands.php');
+        $controllers = $this->loadConfigurationIfExists('controllers.php');
+        $packages = $this->getPackages();
+        foreach ($packages as $package) {
+            $services = array_merge($package->getDefinitions(), $services);
+            $parameters = array_merge($package->getParameters(), $parameters);
+            $listeners = array_merge_recursive($package->getListeners(), $listeners);
+            $routes = array_merge($package->getRoutes(), $routes);
+            $commands = array_merge($package->getCommandSources(), $commands);
+            $controllers = array_merge($package->getControllerSources(), $controllers);
+        }
+
+        return [$services, $parameters, $listeners, $routes, $commands, $packages, $controllers];
+    }
+
+    /**
+     * @return array<PackageInterface>
+     */
+    private function getPackages(): array
+    {
+        $packagesName = $this->loadConfigurationIfExists('packages.php');
+        $packages = [];
+        foreach ($packagesName as $packageName => $envs) {
+            if (!in_array($this->getEnv(), $envs)) {
+                continue;
+            }
+            $packages[] = new $packageName();
+        }
+        return $packages;
+    }
+
+    private function loadParameters(): array
+    {
+        $parameters = $this->loadConfigurationIfExists('parameters.php');
+        $parameters['michel.environment'] = $this->getEnv();
+        $parameters['michel.debug'] = $this->isDebug();
+        $parameters['michel.project_dir'] = $this->getProjectDir();
+        $parameters['michel.cache_dir'] = $this->getCacheDir();
+        $parameters['michel.logs_dir'] = $this->getLogDir();
+        $parameters['michel.config_dir'] = $this->getConfigDir();
+        $parameters['michel.public_dir'] = $this->getPublicDir();
+        $parameters['michel.current_cache'] = $this->getEnv() === 'dev' ? null : $this->getCacheDir();
+
+        return $parameters;
     }
 
     private static function getAvailableEnvironments(): array

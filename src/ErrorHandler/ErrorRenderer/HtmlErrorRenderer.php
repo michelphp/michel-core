@@ -35,6 +35,7 @@ final class HtmlErrorRenderer
     public function __invoke(HttpExceptionInterface $exception): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($exception->getStatusCode());
+        $response = $response->withHeader('Content-Type', 'text/html');
         if ($this->isDebug() === false) {
             $template = $this->findTemplate($exception->getStatusCode());
             if ($template !== null) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Michel\Framework\Core\Routing;
+namespace Michel\Framework\Core\Finder;
 
 use Michel\Framework\Core\Controller\Controller;
 

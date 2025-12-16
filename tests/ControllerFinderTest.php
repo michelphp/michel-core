@@ -2,7 +2,7 @@
 
 namespace Test\Michel\Framework\Core;
 
-use Michel\Framework\Core\Routing\ControllerFinder;
+use Michel\Framework\Core\Finder\ControllerFinder;
 use Michel\UniTester\TestCase;
 use Test\Michel\Framework\Core\Controller\SampleControllerTest;
 use Test\Michel\Framework\Core\Controller\UserControllerTest;
@@ -50,10 +50,15 @@ class ControllerFinderTest extends TestCase
             $controllers = (new ControllerFinder([$targetDir], $cacheDir))->findControllerClasses();
             $this->assertCount(2, $controllers);
             $this->assertTrue(file_exists($fileCache));
-            $this->assertEquals([
+
+            $classes = require $fileCache;
+            $needles = [
                 SampleControllerTest::class,
                 UserControllerTest::class,
-            ], require $fileCache);
+            ];
+            rsort($classes);
+            rsort($needles);
+            $this->assertEquals($needles, $classes);
 
             $controllers = (new ControllerFinder([$targetDir], $cacheDir))->findControllerClasses();
             $this->assertCount(2, $controllers);

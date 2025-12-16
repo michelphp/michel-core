@@ -58,9 +58,9 @@ if (!function_exists('array_group_by')) {
         $result = [];
         foreach ($array as $value) {
             $group = $value;
-            if (is_array( $value)) {
+            if (is_array($value)) {
                 $group = $value[$key];
-            }elseif (is_object($value)) {
+            } elseif (is_object($value)) {
                 $group = $value->$key;
             }
             $result[$group][] = $value;
