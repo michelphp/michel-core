@@ -1,0 +1,47 @@
+{
+    "name": "michel/michel-core",
+    "description": "The Michel Framework Core provides the essential building blocks for the Michel Framework. It's a lightweight, versatile, and modern PHP framework designed to streamline web development and simplify common tasks.",
+    "type": "package",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "Michel.F"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "\\Michel\\Framework\\Core\\": "src",
+            "Test\\Michel\\Framework\\Core\\": "tests"
+        },
+        "files": [
+            "functions/helpers.php",
+            "functions/helpers_file.php",
+            "functions/helpers_string.php",
+            "functions/helpers_array.php",
+            "functions/helpers_date.php"
+        ]
+    },
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "psr/container": "^1.0|^2.0",
+        "psr/http-message": "~1.0|^2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/log": "^1.1|^2.0",
+        "michel/dotenv": "^1.0",
+        "michel/router": "^1.0",
+        "michel/options-resolver": "^1.0",
+        "michel/console": "^1.0",
+        "michel/vardumper": "^1.0",
+        "michel/psr14-event-dispatcher": "^1.0",
+        "michel/pure-plate": "^1.0",
+        "michel/michel-package-starter": "^1.0"
+    },
+    "require-dev": {
+      "michel/unitester": "^1.0.0"
+    }
+}
