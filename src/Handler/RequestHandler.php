@@ -4,6 +4,7 @@ namespace Michel\Framework\Core\Handler;
 
 use LogicException;
 use Michel\Framework\Core\Debug\DebugDataCollector;
+use Michel\Framework\Core\Http\RequestContext;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

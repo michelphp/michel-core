@@ -17,6 +17,7 @@ use Michel\Framework\Core\Config\ConfigProvider;
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Michel\Framework\Core\ErrorHandler\ExceptionHandler;
+use Michel\Framework\Core\Http\RequestContext;
 use Michel\Framework\Core\Middlewares\DebugMiddleware;
 use Michel\Framework\Core\Middlewares\ForceHttpsMiddleware;
 use Michel\Framework\Core\Middlewares\IpRestrictionMiddleware;
@@ -36,6 +37,9 @@ final class MichelCorePackage implements PackageInterface
     public function getDefinitions(): array
     {
         return [
+            RequestContext::class => static function (ContainerInterface $container): RequestContext {
+                return new RequestContext();
+            },
             ConfigProvider::class => static function (ContainerInterface $container): ConfigProvider {
                 return new ConfigProvider($container);
             },
@@ -74,7 +78,8 @@ final class MichelCorePackage implements PackageInterface
                     $container->get('michel.environment') === 'dev',
                     filepath_join($container->get('michel.cache_dir'), 'pure'),
                     [
-                        '_container' => $container
+                        '_container' => $container,
+                        'context' => $container->get(RequestContext::class)
                     ]
                 );
             },

@@ -14,6 +14,7 @@ use Michel\Framework\Core\Http\Exception\HttpException;
 use Michel\Framework\Core\Http\Exception\HttpExceptionInterface;
 use InvalidArgumentException;
 use Michel\Framework\Core\Finder\ControllerFinder;
+use Michel\Framework\Core\Http\RequestContext;
 use Michel\Package\PackageInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -74,6 +75,12 @@ abstract class BaseKernel
         try {
             $request = $request->withAttribute('request_id', strtoupper(uniqid('REQ')));
             $request = $request->withAttribute('debug_collector', $this->debugDataCollector);
+
+            /**
+             * @var RequestContext $context
+             */
+            $context = $this->container->get(RequestContext::class);
+            $context->setRequest($request);
 
             $requestHandler = new RequestHandler($this->container, $this->middlewareCollection);
             $response =  $requestHandler->handle($request);
