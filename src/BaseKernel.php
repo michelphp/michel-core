@@ -125,17 +125,17 @@ abstract class BaseKernel
         return App::createContainer($definitions, ['cache_dir' => $this->getCacheDir()]);
     }
 
-    final protected function logException(Throwable $exception, ServerRequestInterface  $request): void
+    final protected function logException(Throwable $exception, ServerRequestInterface $request): void
     {
         $this->log([
             '@timestamp' => (new DateTimeImmutable())->format('c'),
             'log.level' => 'error',
             'id' => $request->getAttribute('request_id'),
+            'message' => $exception->getMessage(),
             'http.request' => [
                 'method' => $request->getMethod(),
                 'url' => $request->getUri()->__toString(),
             ],
-            'message' => $exception->getMessage(),
             'error' => [
                 'code' => $exception->getCode(),
                 'stack_trace' => $exception->getTrace(),
@@ -145,7 +145,7 @@ abstract class BaseKernel
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
             ],
-        ]);
+        ], sprintf('%s_request_error.log', $this->getEnv()));
     }
 
     final protected function log(array $data, string $logFile = null): void
@@ -208,7 +208,7 @@ abstract class BaseKernel
     private function configureErrorHandling(): void
     {
         ini_set("log_errors", '1');
-        ini_set("error_log", $this->getLogDir() . '/error_log.log');
+        ini_set("error_log", filepath_join($this->getLogDir(), sprintf('%s_error.log', $this->getEnv())));
 
         if ($this->getEnv() === 'dev') {
             ErrorHandler::register();

@@ -6,7 +6,7 @@ namespace Michel\Framework\Core\Middlewares;
 
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\Debug\RequestProfiler;
-use Michel\Renderer\PurePlate;
+use Michel\PurePlate\PhpRenderer;
 use Michel\Resolver\Option;
 use Michel\Resolver\OptionsResolver;
 use Psr\Http\Message\ResponseInterface;
@@ -62,7 +62,7 @@ final class DebugMiddleware implements MiddlewareInterface
         $requestProfilerData = $this->requestProfiler->stop();
         if ($this->profiler) {
             if (strpos($response->getHeaderLine('Content-Type'), 'text/html') !== false) {
-                $renderer = new PurePlate(dirname(__DIR__) . '/../resources/debug');
+                $renderer = new PhpRenderer(dirname(__DIR__) . '/../resources/debug');
                 $debugBarHtml = $renderer->render('debugbar.html.php', [
                     'profiler' => $requestProfilerData,
                 ]);

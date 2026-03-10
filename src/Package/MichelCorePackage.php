@@ -22,15 +22,13 @@ use Michel\Framework\Core\Middlewares\ForceHttpsMiddleware;
 use Michel\Framework\Core\Middlewares\IpRestrictionMiddleware;
 use Michel\Framework\Core\Middlewares\MaintenanceMiddleware;
 use Michel\Package\PackageInterface;
+use Michel\PurePlate\Engine;
 use Michel\Route;
 use Michel\Router;
 use Michel\RouterInterface;
 use Michel\RouterMiddleware;
-use Michel\Renderer\PurePlate;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use function getenv;
 
 final class MichelCorePackage implements PackageInterface
@@ -68,17 +66,17 @@ final class MichelCorePackage implements PackageInterface
                 return new CommandRunner($commands);
             },
             'render' => static function (ContainerInterface $container) {
-                if (class_exists(Environment::class)) {
-                    $loader = new FilesystemLoader($container->get('app.template_dir'));
-                    return new Environment($loader, [
-                        'debug' => $container->get('michel.debug'),
-                        'cache' => $container->get('michel.environment') == 'dev' ? false : $container->get('michel.cache_dir'),
-                    ]);
-                } elseif (class_exists(PurePlate::class)) {
-                    return new PurePlate($container->get('app.template_dir'));
-                }
-
-                throw new LogicException('The "render" requires a Renderer to be available. You can choose between installing "michel/pure-plate" or "twig/twig" depending on your preference.');
+                return $container->get(Engine::class);
+            },
+            Engine::class => static function (ContainerInterface $container) {
+                return new Engine(
+                    $container->get('app.template_dir'),
+                    $container->get('michel.environment') === 'dev',
+                    filepath_join($container->get('michel.cache_dir'), 'pure'),
+                    [
+                        '_container' => $container
+                    ]
+                );
             },
             RouterInterface::class => static function (ContainerInterface $container): object {
                 /**

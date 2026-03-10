@@ -53,7 +53,15 @@ final class ErrorHandler
         if (ini_get('error_log')) {
             error_log($message);
         }
-        echo $message;
+
+        if (php_sapi_name() == 'cli' || php_sapi_name() == 'phpdbg') {
+            echo $message;
+        }else {
+            $acceptsHeaders = explode(',', getallheaders()['Accept'] ?? []);
+            $handler = new ExceptionHandler(response_factory(), ['debug' => true,]);
+            $response = $handler->renderByMimetype($acceptsHeaders[0] ?? 'text/html', $exception);
+            \send_http_response($response);
+        }
         exit(1);
     }
 
