@@ -79,7 +79,9 @@ final class MichelCorePackage implements PackageInterface
                     filepath_join($container->get('michel.cache_dir'), 'pure'),
                     [
                         '_container' => $container,
-                        'context' => $container->get(RequestContext::class)
+                        '_env' => $container->get('michel.environment'),
+                        '_debug' => $container->get('michel.debug'),
+                        '_context' => $container->get(RequestContext::class)
                     ]
                 );
             },

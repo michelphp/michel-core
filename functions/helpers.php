@@ -2,6 +2,7 @@
 
 use Composer\Autoload\ClassLoader;
 use Michel\Framework\Core\App;
+use Michel\RouterInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -212,5 +213,41 @@ if (!function_exists('render')) {
     function render(string $view, array $context = [], int $status = 200): ResponseInterface
     {
         return response(render_view($view, $context), $status);
+    }
+}
+
+
+if (!function_exists('url')) {
+
+    /**
+     * Generates Absolute URL for a route.
+     *
+     * @param string $name
+     * @param array $parameters
+     * @return string The dependency injection container.
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    function url(string $name, array $parameters): string
+    {
+        /**
+         * @var RouterInterface $router
+         */
+        $router =  App::getContainer()->get(RouterInterface::class);
+        return $router->generateUri($name, $parameters, true);
+    }
+}
+
+if (!function_exists('assets')) {
+
+    /**
+     * Generates a URL for an asset.
+     *
+     * @param string $path
+     * @return string The dependency injection container.
+     */
+    function assets(string $path): string
+    {
+        return '/'.ltrim($path, '/');
     }
 }

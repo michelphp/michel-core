@@ -2,6 +2,8 @@
 
 namespace Michel\Framework\Core\Http;
 
+use Michel\Route;
+use Michel\RouterMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 
 class RequestContext
@@ -16,6 +18,18 @@ class RequestContext
     public function getRequest(): ?ServerRequestInterface
     {
         return $this->request;
+    }
+
+    public function getCurrentRoute(): ?string
+    {
+        if ($this->request ===  null) {
+            return null;
+        }
+        $route = $this->request->getAttribute(RouterMiddleware::ATTRIBUTE_KEY);
+        if (!$route instanceof Route) {
+            return null;
+        }
+        return $route->getName();
     }
 
     public function setUser(object $user): void
