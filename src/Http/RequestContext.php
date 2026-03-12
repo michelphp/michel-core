@@ -2,6 +2,7 @@
 
 namespace Michel\Framework\Core\Http;
 
+use Michel\Framework\Core\Auth\UserInterface;
 use Michel\Route;
 use Michel\RouterMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
@@ -9,7 +10,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class RequestContext
 {
     private ?ServerRequestInterface $request = null;
-    private ?object $user = null;
 
     public function setRequest(ServerRequestInterface $request): void
     {
@@ -32,12 +32,8 @@ class RequestContext
         return $route->getName();
     }
 
-    public function setUser(object $user): void
+    public function getUser(): ?UserInterface
     {
-        $this->user = $user;
-    }
-    public function getUser(): ?object
-    {
-        return $this->user;
+        return $this->request->getAttribute('user');
     }
 }

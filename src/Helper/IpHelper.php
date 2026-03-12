@@ -21,7 +21,7 @@ final class IpHelper
             return $serverParams['REMOTE_ADDR'];
         }
 
-        return '127.0.0.1';
+        return '';
     }
 
 }

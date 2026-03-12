@@ -190,7 +190,8 @@ if (!function_exists('render_view')) {
     function render_view(string $view, array $context = []): string
     {
         if (!container()->has('render')) {
-            throw new LogicException('The "render_view" method requires a Renderer to be available. You can choose between installing "Michel/php-renderer" or "twig/twig" depending on your preference.');
+            throw new \LogicException('The "render_view" method requires the "michel/pure-plate" package. ' .
+            'Try running "composer require michel/pure-plate".');
         }
 
         $renderer = container()->get('render');
@@ -238,7 +239,7 @@ if (!function_exists('url')) {
     }
 }
 
-if (!function_exists('assets')) {
+if (!function_exists('asset')) {
 
     /**
      * Generates a URL for an asset.
@@ -246,7 +247,7 @@ if (!function_exists('assets')) {
      * @param string $path
      * @return string The dependency injection container.
      */
-    function assets(string $path): string
+    function asset(string $path): string
     {
         return '/'.ltrim($path, '/');
     }

@@ -2,6 +2,7 @@
 
 namespace Michel\Framework\Core\Middlewares;
 
+use Closure;
 use Michel\Framework\Core\Helper\IpHelper;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -15,9 +16,9 @@ final class MaintenanceMiddleware implements MiddlewareInterface
     private ResponseFactoryInterface $responseFactory;
 
     private array $allowedIps;
-    private ?\Closure $renderer;
+    private ?Closure $renderer;
 
-    public function __construct(bool $maintenanceMode, ResponseFactoryInterface $responseFactory,array $allowedIps = [], \Closure $renderer = null)
+    public function __construct(bool $maintenanceMode, ResponseFactoryInterface $responseFactory, array $allowedIps = [], Closure $renderer = null)
     {
         $this->maintenanceMode = $maintenanceMode;
         $this->responseFactory = $responseFactory;
@@ -33,7 +34,7 @@ final class MaintenanceMiddleware implements MiddlewareInterface
             if ($this->renderer !== null) {
                 $renderer = $this->renderer;
                 $response->getBody()->write($renderer($request));
-            }else{
+            } else {
                 $response->getBody()->write('
     <html>
         <head>

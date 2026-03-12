@@ -28,7 +28,7 @@ final class DebugMiddleware implements MiddlewareInterface
             Option::bool('debug', false),
             Option::bool('profiler', false),
             Option::string('env', 'prod'),
-            Option::string('log_dir', 'prod')->validator(function ($value) {
+            Option::string('log_dir')->validator(function ($value) {
                 return file_exists($value);
             }),
         ]);
