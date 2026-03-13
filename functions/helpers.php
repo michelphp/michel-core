@@ -229,7 +229,7 @@ if (!function_exists('url')) {
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    function url(string $name, array $parameters): string
+    function url(string $name, array $parameters = []): string
     {
         /**
          * @var RouterInterface $router
@@ -243,6 +243,7 @@ if (!function_exists('asset')) {
 
     /**
      * Generates a URL for an asset.
+     *
      *
      * @param string $path
      * @return string The dependency injection container.

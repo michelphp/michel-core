@@ -76,7 +76,7 @@ final class MichelCorePackage implements PackageInterface
                 return new Engine(
                     $container->get('app.template_dir'),
                     $container->get('michel.environment') === 'dev',
-                    filepath_join($container->get('michel.cache_dir'), 'pure'),
+                    filepath_join($container->get('michel.cache_dir'), 'plate'),
                     [
                         '_container' => $container,
                         '_env' => $container->get('michel.environment'),
