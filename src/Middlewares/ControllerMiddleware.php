@@ -40,14 +40,20 @@ final class ControllerMiddleware implements MiddlewareInterface
         $this->container = $container;
     }
 
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $controller = $this->resolveController($request);
-        if ($controller instanceof Controller) {
-            $controller->setContainer($this->container);
+        $controllerObject = $controller;
+        if (!$controllerObject instanceof Controller) {
+            $controllerObject = $controller[0] ?? null;
+        }
+
+        if ($controllerObject instanceof Controller) {
+            $controllerObject->setContainer($this->container);
             $requestHandler = new RequestHandler(
                 $this->container,
-                $controller->getMiddlewares(),
+                $controllerObject->getMiddlewares(),
                 static function (ServerRequestInterface $request) use ($controller) {
                     return self::callController($request, $controller);
                 }

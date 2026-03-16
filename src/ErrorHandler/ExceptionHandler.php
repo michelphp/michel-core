@@ -41,7 +41,7 @@ class ExceptionHandler
     public function renderByMimetype(string $mimeType, Throwable $exception): ResponseInterface
     {
         if (!$exception instanceof HttpExceptionInterface) {
-            $exception = new HttpException(500, $exception->getMessage(), $exception->getCode(), $exception);
+            $exception = new HttpException(500, $exception->getMessage(), (int)$exception->getCode(), $exception);
         }
 
         $mimeType = strtolower($mimeType);

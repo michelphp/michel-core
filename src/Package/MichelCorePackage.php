@@ -30,6 +30,7 @@ use Michel\RouterInterface;
 use Michel\RouterMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use function getenv;
 
 final class MichelCorePackage implements PackageInterface
@@ -37,6 +38,9 @@ final class MichelCorePackage implements PackageInterface
     public function getDefinitions(): array
     {
         return [
+            ResponseFactoryInterface::class => static function (ContainerInterface $container): ResponseFactoryInterface {
+                return response_factory();
+            },
             RequestContext::class => static function (ContainerInterface $container): RequestContext {
                 return new RequestContext();
             },
@@ -106,21 +110,21 @@ final class MichelCorePackage implements PackageInterface
                 ]);
             },
             RouterMiddleware::class => static function (ContainerInterface $container) {
-                return new RouterMiddleware($container->get(RouterInterface::class), response_factory());
+                return new RouterMiddleware($container->get(RouterInterface::class), $container->get(ResponseFactoryInterface::class));
             },
             ForceHttpsMiddleware::class => static function (ContainerInterface $container) {
                 /**
                  * @var ConfigProvider $configProvider
                  */
                 $configProvider = $container->get(ConfigProvider::class);
-                return new ForceHttpsMiddleware($configProvider->isForceHttps(), response_factory());
+                return new ForceHttpsMiddleware($configProvider->isForceHttps(),$container->get(ResponseFactoryInterface::class));
             },
             IpRestrictionMiddleware::class => static function (ContainerInterface $container) {
                 /**
                  * @var ConfigProvider $configProvider
                  */
                 $configProvider = $container->get(ConfigProvider::class);
-                return new IpRestrictionMiddleware($configProvider->getAllowedIps(), response_factory());
+                return new IpRestrictionMiddleware($configProvider->getAllowedIps(), $container->get(ResponseFactoryInterface::class));
             },
             MaintenanceMiddleware::class => static function (ContainerInterface $container) {
                 /**
@@ -129,7 +133,7 @@ final class MichelCorePackage implements PackageInterface
                 $configProvider = $container->get(ConfigProvider::class);
                 return new MaintenanceMiddleware(
                     $configProvider->isMaintenance(),
-                    response_factory(),
+                    $container->get(ResponseFactoryInterface::class),
                     $configProvider->getAllowedIps()
                 );
             },
@@ -139,10 +143,10 @@ final class MichelCorePackage implements PackageInterface
                  */
                 $configProvider = $container->get(ConfigProvider::class);
 
-                return new ExceptionHandler(response_factory(), [
+                return new ExceptionHandler($container->get(ResponseFactoryInterface::class), [
                         'debug' => $container->get('michel.debug'),
                         'html_response' => new HtmlErrorRenderer(
-                            response_factory(),
+                            $container->get(ResponseFactoryInterface::class),
                             $container->get('michel.debug'),
                             filepath_join($configProvider->getTemplateDir(), '_exception')
                         )

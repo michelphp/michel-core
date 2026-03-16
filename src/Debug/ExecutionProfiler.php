@@ -50,8 +50,8 @@ final class ExecutionProfiler
                 'log.level' => 'debug',
                 'event.duration' => $duration,
                 'metrics' => [
-                    'memory.usage' => _m_convert($memoryUsage),
-                    'peak_memory.usage' => _m_convert(memory_get_peak_usage(true)),
+                    'memory.usage' => human_readable_bytes($memoryUsage),
+                    'peak_memory.usage' => human_readable_bytes(memory_get_peak_usage(true)),
                     'load_time.ms' => $duration * 1000,
                     'load_time.s' => number_format($duration, 3),
                 ],

@@ -65,9 +65,9 @@ final class RequestProfiler
             'event.duration' => $duration,
             'metrics' => [
                 'memory.usage' => $memoryUsage,
-                'memory.usage.human' => _m_convert($memoryUsage),
+                'memory.usage.human' => human_readable_bytes($memoryUsage),
                 'memory.peak' => $memoryPeak,
-                'memory.peak.human' => _m_convert(memory_get_peak_usage(true)),
+                'memory.peak.human' => human_readable_bytes(memory_get_peak_usage(true)),
                 'load_time.ms' => ceil($duration * 1000),
                 'load_time.s' => number_format($duration, 3),
             ],
