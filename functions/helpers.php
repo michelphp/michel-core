@@ -176,6 +176,25 @@ if (!function_exists('redirect')) {
     }
 }
 
+if (!function_exists('redirect_to')) {
+    /**
+     * Creates a redirect response to a named route.
+     *
+     * @param string $routeName   The name of the route registered in the router.
+     * @param array  $parameters  Dynamic parameters to build the URI (e.g., ['id' => 1]).
+     * @param int    $status      The HTTP status code (default: 302).
+     * @return ResponseInterface The configured redirect response.
+     */
+    function redirect_to(string $routeName, array $parameters = [], int $status = 302): ResponseInterface
+    {
+        /** @var RouterInterface $router */
+        $router = container()->get(RouterInterface::class);
+        return response_factory()
+            ->createResponse($status)
+            ->withHeader('Location', $router->generateUri($routeName, $parameters));
+    }
+}
+
 if (!function_exists('render_view')) {
 
     /**
@@ -208,8 +227,6 @@ if (!function_exists('render')) {
      * @param array $context The context data to pass to the view.
      * @param int $status The HTTP status code.
      * @return ResponseInterface The HTTP response with the rendered view.
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     function render(string $view, array $context = [], int $status = 200): ResponseInterface
     {

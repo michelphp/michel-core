@@ -41,6 +41,7 @@
             height: 40px;
             font-family: Inter, sans-serif;
             white-space: nowrap;
+            z-index: 10000;
         }
 
         .__michel_debug_navbar a {

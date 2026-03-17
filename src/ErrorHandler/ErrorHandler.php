@@ -24,6 +24,19 @@ final class ErrorHandler
         $handler = new self();
         set_error_handler($handler);
         set_exception_handler([$handler, 'handleException']);
+        register_shutdown_function(function() use ($handler) {
+            $error = error_get_last();
+            if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR])) {
+                $exception = new \ErrorException(
+                    $error['message'],
+                    0,
+                    $error['type'],
+                    $error['file'],
+                    $error['line'],
+                );
+                $handler->handleException($exception);
+            }
+        });
         return $handler;
     }
 

@@ -169,8 +169,9 @@ $e = $exception->getPrevious() ?: $exception;
             <p><?php echo $e->getMessage(); ?> - <small><?php echo get_class($e) ?></small></p>
             <i class="small"><?php echo $e->getFile(); ?> line <?php echo $e->getLine(); ?></i>
         </div>
+        <?php $traces = array_reverse($e->getTrace()); ?>
+        <?php if (!empty($traces)) : ?>
         <ul class="exception-traces">
-            <?php $traces = array_reverse($e->getTrace()); ?>
             <?php foreach (array_reverse($traces, true) as $key => $item): ?>
                 <?php if (!isset($item['file'])) {
                     continue;
@@ -189,6 +190,7 @@ $e = $exception->getPrevious() ?: $exception;
                 </li>
             <?php endforeach; ?>
         </ul>
+        <?php endif; ?>
     </div>
 </main>
 <footer>
