@@ -22,4 +22,7 @@ interface HttpExceptionInterface extends \Throwable
      * @return string
      */
     public function getDefaultMessage(): string;
+
+
+    public function getContentType(): ?string;
 }

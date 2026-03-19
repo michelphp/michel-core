@@ -14,7 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-final class DebugMiddleware implements MiddlewareInterface
+final class ProfilerMiddleware implements MiddlewareInterface
 {
     protected ?RequestProfiler $requestProfiler = null;
     private bool $debug = false;
@@ -95,7 +95,7 @@ final class DebugMiddleware implements MiddlewareInterface
             }
         }
 
-        $this->log($requestProfilerData, 'debug.log');
+        $this->log($requestProfilerData, 'profiler.log');
 
         return $response;
     }
@@ -112,7 +112,7 @@ final class DebugMiddleware implements MiddlewareInterface
         ]);
     }
 
-    final protected function log(array $data, string $logFile = null): void
+    final protected function log(array $data, string $logFile): void
     {
         if ($this->logDir === null) {
             return;
@@ -120,10 +120,6 @@ final class DebugMiddleware implements MiddlewareInterface
 
         if (!is_dir($this->logDir)) {
             @mkdir($this->logDir, 0777, true);
-        }
-
-        if ($logFile === null) {
-            $logFile = $this->env . '.log';
         }
 
         file_put_contents(filepath_join($this->logDir, $logFile), json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND|LOCK_EX);

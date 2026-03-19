@@ -84,9 +84,11 @@ abstract class BaseKernel
 
             $requestHandler = new RequestHandler($this->container, $this->middlewareCollection);
             $response =  $requestHandler->handle($request);
-            if ($response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
-                throw new HttpException($response->getStatusCode(), $response->getReasonPhrase());
-            }
+//            if (!$response->hasHeader('WWW-Authenticate') && $response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
+//                $exception = new HttpException($response->getStatusCode(), $response->getReasonPhrase());
+//                $exception->setContentType($response->getHeaderLine('Content-Type'));
+//                throw $exception;
+//            }
             return $response;
         } catch (Throwable $exception) {
             if (!$exception instanceof HttpExceptionInterface) {
@@ -152,7 +154,7 @@ abstract class BaseKernel
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
             ],
-        ], sprintf('%s_request_error.log', $this->getEnv()));
+        ], 'request_error.log');
     }
 
     final protected function log(array $data, string $logFile = null): void
@@ -215,7 +217,7 @@ abstract class BaseKernel
     private function configureErrorHandling(): void
     {
         ini_set("log_errors", '1');
-        ini_set("error_log", filepath_join($this->getLogDir(), sprintf('%s_error.log', $this->getEnv())));
+        ini_set("error_log", filepath_join($this->getLogDir(), 'error.log'));
 
         if ($this->getEnv() === 'dev') {
             ErrorHandler::register();

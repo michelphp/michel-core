@@ -18,7 +18,7 @@ use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Michel\Framework\Core\ErrorHandler\ExceptionHandler;
 use Michel\Framework\Core\Http\RequestContext;
-use Michel\Framework\Core\Middlewares\DebugMiddleware;
+use Michel\Framework\Core\Middlewares\ProfilerMiddleware;
 use Michel\Framework\Core\Middlewares\ForceHttpsMiddleware;
 use Michel\Framework\Core\Middlewares\IpRestrictionMiddleware;
 use Michel\Framework\Core\Middlewares\MaintenanceMiddleware;
@@ -101,8 +101,8 @@ final class MichelCorePackage implements PackageInterface
             DebugDataCollector::class => static function (ContainerInterface $container): DebugDataCollector {
                 return new DebugDataCollector($container->get('michel.debug'));
             },
-            DebugMiddleware::class => static function (ContainerInterface $container) {
-                return new DebugMiddleware([
+            ProfilerMiddleware::class => static function (ContainerInterface $container) {
+                return new ProfilerMiddleware([
                     'debug' => $container->get('michel.debug'),
                     'profiler' => $container->get('app.profiler'),
                     'env' => $container->get('michel.environment'),

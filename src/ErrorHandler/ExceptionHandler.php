@@ -53,7 +53,8 @@ class ExceptionHandler
 
     public function render(ServerRequestInterface $request, Throwable $exception): ResponseInterface
     {
-        return $this->renderByMimetype($request->getHeaderLine('accept'), $exception);
+        $mimeType = $exception instanceof HttpExceptionInterface ? $exception->getContentType() : $request->getHeaderLine('accept');
+        return $this->renderByMimetype($mimeType, $exception);
     }
 
     protected function renderJsonResponse(HttpExceptionInterface $exception): ResponseInterface
