@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Unit test for response responses/helper functions
+ */
+
 namespace Test\Michel\Framework\Core\Response;
 
 use http\Message\Body;

@@ -2,10 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Middleware for profiling HTTP request execution
+ */
+
 namespace Michel\Framework\Core\Middlewares;
 
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\Debug\RequestProfiler;
+use Michel\Framework\Core\Log\FrameworkLogger;
 use Michel\PurePlate\PhpRenderer;
 use Michel\Resolver\Option;
 use Michel\Resolver\OptionsResolver;
@@ -20,7 +31,7 @@ final class ProfilerMiddleware implements MiddlewareInterface
     private bool $debug = false;
     private bool $profiler = false;
     private string $env;
-    private ?string $logDir = null;
+    private ?FrameworkLogger $frameworkLogger = null;
 
     public function __construct(array $options = [])
     {
@@ -37,7 +48,7 @@ final class ProfilerMiddleware implements MiddlewareInterface
         $this->debug = $options['debug'];
         $this->profiler = $options['profiler'];
         $this->env = strtolower($options['env']);
-        $this->logDir = rtrim($options['log_dir'], '/') . '/';
+        $this->frameworkLogger = new FrameworkLogger(rtrim($options['log_dir'], '/\\'));
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -95,7 +106,9 @@ final class ProfilerMiddleware implements MiddlewareInterface
             }
         }
 
-        $this->log($requestProfilerData, 'profiler.log');
+        if ($this->frameworkLogger !== null) {
+            $this->frameworkLogger->logRaw('profiler', $requestProfilerData);
+        }
 
         return $response;
     }
@@ -103,25 +116,12 @@ final class ProfilerMiddleware implements MiddlewareInterface
     private function initializeDevelopmentEnvironment(): void
     {
         $this->requestProfiler = new RequestProfiler([
-            'environment' => $this->env,
-            'php_version' => PHP_VERSION,
-            'php_extensions' => implode(', ', get_loaded_extensions()),
-            'php_sapi' => php_sapi_name(),
+            'environment'      => $this->env,
+            'php_version'      => PHP_VERSION,
+            'php_extensions'   => implode(', ', get_loaded_extensions()),
+            'php_sapi'         => php_sapi_name(),
             'php_memory_limit' => ini_get('memory_limit'),
-            'php_timezone' => date_default_timezone_get(),
+            'php_timezone'     => date_default_timezone_get(),
         ]);
-    }
-
-    final protected function log(array $data, string $logFile): void
-    {
-        if ($this->logDir === null) {
-            return;
-        }
-
-        if (!is_dir($this->logDir)) {
-            @mkdir($this->logDir, 0777, true);
-        }
-
-        file_put_contents(filepath_join($this->logDir, $logFile), json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND|LOCK_EX);
     }
 }

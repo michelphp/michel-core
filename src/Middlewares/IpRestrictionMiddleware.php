@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Middleware to restrict access based on IP address
+ */
+
 namespace Michel\Framework\Core\Middlewares;
 
 use Michel\Framework\Core\Helper\IpHelper;

@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Unit test for controller behavior with a sample controller
+ */
+
 namespace Test\Michel\Framework\Core\Controller;
 
 use Michel\Framework\Core\Controller\Controller;

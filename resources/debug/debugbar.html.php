@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Debug bar view template
+ */
+
+/**
  * @var array $profiler [
  * '@timestamp' => (new DateTimeImmutable())->format('c'),
  * 'log.level' => 'debug',

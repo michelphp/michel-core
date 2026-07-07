@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Core helper functions for the framework
+ */
+
 use Composer\Autoload\ClassLoader;
 use Michel\Framework\Core\App;
 use Michel\RouterInterface;
@@ -15,10 +27,12 @@ use Psr\Http\Message\ServerRequestInterface;
 if (!function_exists('michel_composer_loader')) {
 
     /**
-     * Returns the instance of the Composer class loader.
+     * Finds and returns the magical Composer ClassLoader to load classes on the fly!
      *
-     * @return ClassLoader
-     * @throws LogicException If the MICHEL_COMPOSER_AUTOLOAD_FILE constant is not defined.
+     * @example $loader = michel_composer_loader();
+     *
+     * @return ClassLoader The composer class loader instance.
+     * @throws LogicException If the MICHEL_COMPOSER_AUTOLOAD_FILE constant is missing.
      */
     function michel_composer_loader(): ClassLoader
     {
@@ -32,9 +46,11 @@ if (!function_exists('michel_composer_loader')) {
 if (!function_exists('send_http_response')) {
 
     /**
-     * Sends the HTTP response to the client.
+     * Launches the HTTP response into the wild, sending headers and printing the body!
      *
-     * @param ResponseInterface $response The HTTP response to send.
+     * @example send_http_response($response);
+     *
+     * @param ResponseInterface $response The HTTP response to emit.
      */
     function send_http_response(ResponseInterface $response)
     {
@@ -61,9 +77,11 @@ if (!function_exists('send_http_response')) {
 if (!function_exists('container')) {
 
     /**
-     * Retrieves the application's dependency injection container.
+     * Grabs the Dependency Injection Container (aka the box of all your services).
      *
-     * @return ContainerInterface The dependency injection container.
+     * @example $db = container()->get(DatabaseConnection::class);
+     *
+     * @return ContainerInterface The service container.
      */
     function container(): ContainerInterface
     {
@@ -74,9 +92,11 @@ if (!function_exists('container')) {
 if (!function_exists('create_request')) {
 
     /**
-     * Creates a new HTTP request.
+     * Captures or creates a brand new HTTP ServerRequest object.
      *
-     * @return ServerRequestInterface The HTTP response.
+     * @example $request = create_request();
+     *
+     * @return ServerRequestInterface The created server request.
      */
     function create_request(): ServerRequestInterface
     {
@@ -87,9 +107,11 @@ if (!function_exists('create_request')) {
 if (!function_exists('request_factory')) {
 
     /**
-     * Creates a new HTTP request.
+     * Gets the factory responsible for crafting fresh ServerRequest instances.
      *
-     * @return ServerRequestFactoryInterface The HTTP response.
+     * @example $factory = request_factory();
+     *
+     * @return ServerRequestFactoryInterface The request factory.
      */
     function request_factory(): ServerRequestFactoryInterface
     {
@@ -100,7 +122,9 @@ if (!function_exists('request_factory')) {
 if (!function_exists('response_factory')) {
 
     /**
-     * Retrieves the response factory.
+     * Retrieves the response factory to easily build custom HTTP responses.
+     *
+     * @example $factory = response_factory();
      *
      * @return ResponseFactoryInterface The response factory.
      */
@@ -113,11 +137,14 @@ if (!function_exists('response_factory')) {
 if (!function_exists('response')) {
 
     /**
-     * Creates a new HTTP response.
+     * Wraps your raw text/content into a shiny, standard HTTP Response object.
      *
-     * @param string $content The response content.
+     * @example return response('<h1>Hello World!</h1>', 200, 'text/html');
+     *
+     * @param string $content The body content of the response.
      * @param int $status The HTTP status code.
-     * @return ResponseInterface The HTTP response.
+     * @param string $contentType The content mime-type header.
+     * @return ResponseInterface The crafted HTTP response.
      */
     function response(string $content = '', int $status = 200, $contentType = 'text/html'): ResponseInterface
     {
@@ -130,12 +157,14 @@ if (!function_exists('response')) {
 if (!function_exists('json_response')) {
 
     /**
-     * Creates a new JSON response.
+     * Prepares a neat, machine-friendly JSON Response. Perfect for APIs!
      *
-     * @param array|JsonSerializable $data The data to encode to JSON.
+     * @example return json_response(['status' => 'success', 'data' => $userArray]);
+     *
+     * @param array|JsonSerializable $data The array or serializable object to encode.
      * @param int $status The HTTP status code.
-     * @param int $flags JSON encoding flags.
-     * @return ResponseInterface The JSON response.
+     * @param int $flags Bitmask JSON options for json_encode.
+     * @return ResponseInterface The JSON HTTP response.
      * @throws InvalidArgumentException If JSON encoding fails.
      */
     function json_response($data, int $status = 200, int $flags = JSON_HEX_TAG
@@ -163,11 +192,13 @@ if (!function_exists('json_response')) {
 if (!function_exists('redirect')) {
 
     /**
-     * Creates a redirect response.
+     * Sends visitors on a trip to a different URL via a Location header.
      *
-     * @param string $url The URL to redirect to.
-     * @param int $status The HTTP status code.
-     * @return ResponseInterface The redirect response.
+     * @example return redirect('/login');
+     *
+     * @param string $url The target URL path.
+     * @param int $status The redirection HTTP status code.
+     * @return ResponseInterface The redirect HTTP response.
      */
     function redirect(string $url, int $status = 302): ResponseInterface
     {
@@ -177,12 +208,15 @@ if (!function_exists('redirect')) {
 }
 
 if (!function_exists('redirect_to')) {
+
     /**
-     * Creates a redirect response to a named route.
+     * Builds a redirect response pointing to a registered named route.
      *
-     * @param string $routeName   The name of the route registered in the router.
-     * @param array  $parameters  Dynamic parameters to build the URI (e.g., ['id' => 1]).
-     * @param int    $status      The HTTP status code (default: 302).
+     * @example return redirect_to('profile_view', ['id' => 42]);
+     *
+     * @param string $routeName   The name of the route.
+     * @param array  $parameters  Dynamic route arguments.
+     * @param int    $status      The redirection HTTP status code.
      * @return ResponseInterface The configured redirect response.
      */
     function redirect_to(string $routeName, array $parameters = [], int $status = 302): ResponseInterface
@@ -198,11 +232,13 @@ if (!function_exists('redirect_to')) {
 if (!function_exists('render_view')) {
 
     /**
-     * Renders a view template with the provided context.
+     * Renders a view template, injecting variables to generate HTML text.
      *
-     * @param string $view The name of the view template.
-     * @param array $context The context data to pass to the view.
-     * @return string The rendered view.
+     * @example $html = render_view('welcome.html.plate', ['name' => 'Michel']);
+     *
+     * @param string $view The name/path of the view template.
+     * @param array $context Dynamic variables to pass to the view.
+     * @return string The raw rendered HTML/text content.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -221,12 +257,14 @@ if (!function_exists('render_view')) {
 if (!function_exists('render')) {
 
     /**
-     * Renders a view template and creates an HTTP response.
+     * Renders a view template and directly packs it into a ready-to-go HTTP Response!
      *
-     * @param string $view The name of the view template.
-     * @param array $context The context data to pass to the view.
+     * @example return render('welcome.html.plate', ['name' => 'Michel']);
+     *
+     * @param string $view The view template name.
+     * @param array $context Variables passed to the template.
      * @param int $status The HTTP status code.
-     * @return ResponseInterface The HTTP response with the rendered view.
+     * @return ResponseInterface The rendered view HTTP response.
      */
     function render(string $view, array $context = [], int $status = 200): ResponseInterface
     {
@@ -234,15 +272,16 @@ if (!function_exists('render')) {
     }
 }
 
-
 if (!function_exists('url')) {
 
     /**
-     * Generates Absolute URL for a route.
+     * Generates an absolute URL link for a registered route name.
      *
-     * @param string $name
-     * @param array $parameters
-     * @return string The dependency injection container.
+     * @example $link = url('blog_show', ['slug' => 'hello-world']);
+     *
+     * @param string $name The route name.
+     * @param array $parameters Dynamic route parameters.
+     * @return string The fully generated URL.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -251,7 +290,7 @@ if (!function_exists('url')) {
         /**
          * @var RouterInterface $router
          */
-        $router =  App::getContainer()->get(RouterInterface::class);
+        $router =  container()->get(RouterInterface::class);
         return $router->generateUri($name, $parameters, true);
     }
 }
@@ -259,11 +298,12 @@ if (!function_exists('url')) {
 if (!function_exists('asset')) {
 
     /**
-     * Generates a URL for an asset.
+     * Generates a web-accessible URL path for static assets like CSS, images, and JS.
      *
+     * @example $url = asset('css/main.css'); // => '/css/main.css'
      *
-     * @param string $path
-     * @return string The dependency injection container.
+     * @param string $path The relative path to the asset.
+     * @return string The absolute web path.
      */
     function asset(string $path): string
     {

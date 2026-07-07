@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Application container and configuration registry
+ */
+
 namespace Michel\Framework\Core;
 
 use Psr\Container\ContainerInterface;
@@ -9,11 +19,6 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @package    Michel.F
- * @author    Michel 
- * @license    https://opensource.org/license/mpl-2-0 Mozilla Public License v2.0
- */
 final class App
 {
     private array $options;

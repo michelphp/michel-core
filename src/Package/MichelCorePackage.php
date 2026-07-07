@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Core package definition for the framework
+ */
+
 namespace Michel\Framework\Core\Package;
 
 use LogicException;
@@ -11,8 +23,11 @@ use Michel\Framework\Core\Command\DebugContainerCommand;
 use Michel\Framework\Core\Command\DebugEnvCommand;
 use Michel\Framework\Core\Command\DebugRouteCommand;
 use Michel\Framework\Core\Command\LogClearCommand;
+use Michel\Framework\Core\Command\InstallCommand;
 use Michel\Framework\Core\Command\MakeCommandCommand;
 use Michel\Framework\Core\Command\MakeControllerCommand;
+use Michel\Framework\Core\Command\MakeEventCommand;
+use Michel\Framework\Core\Command\MakeListenerCommand;
 use Michel\Framework\Core\Config\ConfigProvider;
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
@@ -210,6 +225,9 @@ final class MichelCorePackage implements PackageInterface
             DebugEnvCommand::class,
             DebugContainerCommand::class,
             DebugRouteCommand::class,
+            InstallCommand::class,
+            MakeEventCommand::class,
+            MakeListenerCommand::class,
         ];
     }
 }

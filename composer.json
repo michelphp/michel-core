@@ -1,6 +1,6 @@
 {
   "name": "michel/michel-core",
-  "description": "The Michel Framework Core provides the essential building blocks for the Michel Framework. It's a lightweight, versatile, and modern PHP framework designed to streamline web development and simplify common tasks.",
+  "description": "The super-lightweight, versatile, and modern PHP engine. No bloat, no YAML, no XML. Just clean, raw PHP power!",
   "type": "package",
   "license": "MPL-2.0",
   "authors": [
@@ -23,7 +23,7 @@
   },
   "minimum-stability": "alpha",
   "require": {
-    "php": ">=7.4",
+    "php": ">=8.2",
     "ext-json": "*",
     "ext-mbstring": "*",
     "psr/container": "^1.0|^2.0",

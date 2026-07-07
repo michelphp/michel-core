@@ -1,20 +1,30 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Base kernel for the application
+ */
 
 namespace Michel\Framework\Core;
 
-use DateTimeImmutable;
+use InvalidArgumentException;
 use Michel\Attribute\AttributeRouteCollector;
 use Michel\Env\DotEnv;
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorHandler;
 use Michel\Framework\Core\ErrorHandler\ExceptionHandler;
-use Michel\Framework\Core\Handler\RequestHandler;
-use Michel\Framework\Core\Http\Exception\HttpException;
-use Michel\Framework\Core\Http\Exception\HttpExceptionInterface;
-use InvalidArgumentException;
 use Michel\Framework\Core\Finder\ControllerFinder;
+use Michel\Framework\Core\Handler\RequestHandler;
+use Michel\Framework\Core\Http\Exception\HttpExceptionInterface;
 use Michel\Framework\Core\Http\RequestContext;
+use Michel\Framework\Core\Log\FrameworkLogger;
 use Michel\Package\PackageInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -29,14 +39,8 @@ use function error_reporting;
 use function getenv;
 use function implode;
 use function in_array;
-use function json_encode;
 use function sprintf;
 
-/**
- * @package    Michel.F
- * @author    Michel 
- * @license    https://opensource.org/license/mpl-2-0 Mozilla Public License v2.0
- */
 abstract class BaseKernel
 {
     private const DEFAULT_ENV = 'prod';
@@ -55,6 +59,7 @@ abstract class BaseKernel
      */
     private array $middlewareCollection = [];
     private ?DebugDataCollector $debugDataCollector = null;
+    private ?FrameworkLogger $frameworkLogger = null;
 
     /**
      * BaseKernel constructor.
@@ -84,11 +89,6 @@ abstract class BaseKernel
 
             $requestHandler = new RequestHandler($this->container, $this->middlewareCollection);
             $response =  $requestHandler->handle($request);
-//            if (!$response->hasHeader('WWW-Authenticate') && $response->getStatusCode() >= 400 && $response->getStatusCode() < 600) {
-//                $exception = new HttpException($response->getStatusCode(), $response->getReasonPhrase());
-//                $exception->setContentType($response->getHeaderLine('Content-Type'));
-//                throw $exception;
-//            }
             return $response;
         } catch (Throwable $exception) {
             if (!$exception instanceof HttpExceptionInterface) {
@@ -136,45 +136,35 @@ abstract class BaseKernel
 
     final protected function logException(Throwable $exception, ServerRequestInterface $request): void
     {
-        $this->log([
-            '@timestamp' => (new DateTimeImmutable())->format('c'),
-            'log.level' => 'error',
-            'id' => $request->getAttribute('request_id'),
-            'message' => $exception->getMessage(),
-            'http.request' => [
-                'method' => $request->getMethod(),
-                'url' => $request->getUri()->__toString(),
-            ],
-            'error' => [
-                'code' => $exception->getCode(),
-                'stack_trace' => $exception->getTrace(),
-                'class' => get_class($exception),
-            ],
-            'source' => [
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-            ],
-        ], 'request_error.log');
+        $this->frameworkLogger()->log(
+            'request',
+            'error',
+            $exception->getMessage(),
+            [
+                'id'           => $request->getAttribute('request_id'),
+                'http.request' => [
+                    'method' => $request->getMethod(),
+                    'url'    => $request->getUri()->__toString(),
+                ],
+                'error' => [
+                    'code'        => $exception->getCode(),
+                    'class'       => get_class($exception),
+                    'stack_trace' => $exception->getTrace(),
+                ],
+                'source' => [
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                ],
+            ]
+        );
     }
 
-    final protected function log(array $data, string $logFile = null): void
+    final public function frameworkLogger(): FrameworkLogger
     {
-        $logDir = $this->getLogDir();
-        if (empty($logDir)) {
-            throw new InvalidArgumentException('The log dir is empty, please set it in the Kernel.');
+        if ($this->frameworkLogger === null) {
+            $this->frameworkLogger = new FrameworkLogger($this->getLogDir());
         }
-
-        if (!is_dir($logDir) && !mkdir($logDir, 0777, true) && !is_dir($logDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $logDir));
-        }
-        if ($logFile === null) {
-            $logFile = $this->getEnv() . '.log';
-        }
-        error_log(
-            json_encode($data, JSON_UNESCAPED_SLASHES) . PHP_EOL,
-            3,
-            filepath_join( $logDir, $logFile)
-        );
+        return $this->frameworkLogger;
     }
 
     private function boot(): void
@@ -270,15 +260,12 @@ abstract class BaseKernel
             return $scanner->findControllerClasses();
         };
         $definitions['michel.routes'] = static function (ContainerInterface $container) use ($routes) {
-            $collector = null;
-            if (PHP_VERSION_ID >= 80000) {
-                $controllers = $container->get('michel.controllers');
-                $collector = new AttributeRouteCollector(
-                    $controllers,
-                    $container->get('michel.current_cache')
-                );
-            }
-            return array_merge($routes, $collector ? $collector->collect() : []);
+            $controllers = $container->get('michel.controllers');
+            $collector = new AttributeRouteCollector(
+                $controllers,
+                $container->get('michel.current_cache')
+            );
+            return array_merge($routes, $collector->collect());
         };
 
         $this->container = $this->loadContainer($definitions);

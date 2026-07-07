@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * Error page view template
+ */
+
 /***
  * @var $e Exception
  * @var $env array

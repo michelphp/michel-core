@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * HTTP server request mock for testing purposes
+ */
+
 namespace Test\Michel\Framework\Core\Mock;
 
 use Psr\Http\Message\MessageInterface;

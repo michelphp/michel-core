@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * JSON renderer for exception API responses
+ */
+
 namespace Michel\Framework\Core\ErrorHandler\ErrorRenderer;
 
 use Psr\Http\Message\ResponseFactoryInterface;

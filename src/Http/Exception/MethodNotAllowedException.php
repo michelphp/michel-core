@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * HTTP 405 Method Not Allowed exception
+ */
+
 namespace Michel\Framework\Core\Http\Exception;
 
-/**
- * @author Michel.F 
- */
 class MethodNotAllowedException extends HttpException
 {
     protected static ?string $defaultMessage = 'Method Not Allowed';

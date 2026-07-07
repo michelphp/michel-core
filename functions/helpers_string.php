@@ -1,14 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Michel PHP Framework
+ *
+ * @package    MichelFramework
+ * @author     Michel.F
+ * @license    Mozilla Public License v2.0 (MPL-2.0)
+ *
+ * String helper functions
+ */
+
 if (!function_exists('__e')) {
 
     /**
-     * Encodes a string for HTML entities.
+     * Safely escapes string characters for HTML output.
+     * Keeps sneaky hackers away by sanitizing text for the browser!
      *
-     * @param string $str The string to encode.
-     * @param int $flags Flags for htmlentities.
-     * @param string $encoding The character encoding.
-     * @return string The encoded string.
+     * @example __e("<script>alert('hack');</script>") // => "&lt;script&gt;alert('hack');&lt;/script&gt;"
+     *
+     * @param string $str The dangerous raw string.
+     * @param int $flags Escaping strategy configuration flags.
+     * @param string $encoding The character set mapping.
+     * @return string The safe, clean string.
      */
     function __e(string $str, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string
     {
@@ -16,46 +31,21 @@ if (!function_exists('__e')) {
     }
 }
 
-if (!function_exists('str_starts_with')) {
 
-    /**
-     * @param string $haystack
-     * @param string $needle
-     * @return bool
-     */
-    function str_starts_with(string $haystack, string $needle): bool
-    {
-        return substr($haystack, 0, strlen($needle)) === $needle;
-    }
-}
-
-if (!function_exists('str_ends_with')) {
-
-    /**
-     * @param string $haystack
-     * @param string $needle
-     * @return bool
-     */
-    function str_ends_with(string $haystack, string $needle): bool
-    {
-        return substr($haystack, -strlen($needle)) === $needle;
-    }
-}
-
-if (!function_exists('str_contains')) {
-
-    /**
-     * @param string $haystack
-     * @param string $needle
-     * @return bool
-     */
-    function str_contains(string $haystack, string $needle): bool
-    {
-        return strpos($haystack, $needle) !== false;
-    }
-}
 
 if (!function_exists('human_readable_bytes')) {
+
+    /**
+     * Translates a raw byte size into a beautiful, human-readable format.
+     * Makes hard-to-read numbers like 1048576 look friendly like "1 MB"!
+     *
+     * @example human_readable_bytes(1048576) // => "1 MB"
+     * @example human_readable_bytes(1234)    // => "1.21 KB"
+     *
+     * @param int $size Number of bytes.
+     * @param int $precision Number of decimal points.
+     * @return string Human-friendly file size representation.
+     */
     function human_readable_bytes(int $size, int $precision = 2): string
     {
         if ($size <= 0) {
@@ -69,8 +59,14 @@ if (!function_exists('human_readable_bytes')) {
 }
 
 if (!function_exists('_m_convert')) {
+
     /**
-     * @deprecated Use human_readable_bytes instead
+     * Translates a raw byte size (legacy/compatibility function).
+     *
+     * @deprecated Use human_readable_bytes instead.
+     *
+     * @param mixed $size Number of bytes.
+     * @return string Human-friendly file size.
      */
     function _m_convert($size): string
     {
