@@ -18,9 +18,17 @@ use Michel\Console\Command\CommandInterface;
 use Michel\Console\InputInterface;
 use Michel\Console\OutputInterface;
 use Michel\Console\Output\ConsoleOutput;
+use Psr\Container\ContainerInterface;
 
 class SetupCommand implements CommandInterface
 {
+    private ContainerInterface $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     /**
      * Available Michel packages catalog.
      * Each entry: ['name' => 'vendor/package', 'description' => '...']
@@ -28,8 +36,8 @@ class SetupCommand implements CommandInterface
      * This will be replaced by an API call in the future.
      */
     private const PACKAGES = [
-        ['name' => 'michel/paper-orm', 'description' => 'Database ORM with attribute mapping'],
-        ['name' => 'michel/michel-auth', 'description' => 'Authentication & Security'],
+        ['name' => 'michel/paper-orm', 'class' => 'Michel\PaperORM\Michel\Package\MichelPaperORMPackage', 'description' => 'Database ORM with attribute mapping'],
+        ['name' => 'michel/michel-auth', 'class' => 'Michel\Auth\MichelPackage\MichelAuthPackage', 'description' => 'Authentication & Security'],
     ];
 
     public function getName(): string
@@ -120,6 +128,35 @@ class SetupCommand implements CommandInterface
             if ($returnCodeFallback !== 0) {
                 $io->error("\n  Setup failed even with @dev versions. Please check the error above.");
                 return;
+            }
+        }
+
+        // Update config/packages.php
+        $packagesFile = $this->container->get('michel.config_dir') . '/packages.php';
+        if (file_exists($packagesFile)) {
+            $packages = require $packagesFile;
+            $updated = false;
+
+            foreach ($indices as $index) {
+                $pkgClass = self::PACKAGES[$index - 1]['class'] ?? null;
+                if (empty($pkgClass)) {
+                    continue;
+                }
+                if (!isset($packages[$pkgClass])) {
+                    $packages[$pkgClass] = ['dev', 'prod'];
+                    $updated = true;
+                }
+            }
+
+            if ($updated) {
+                $content[] = "<?php\n\nreturn [";
+                foreach ($packages as $class => $envs) {
+                    $envString = implode("', '", $envs);
+                    $content[] = "    \\$class::class => ['$envString'],";
+                }
+                $content[] .= "];";
+                file_put_contents($packagesFile, implode(PHP_EOL, $content));
+                $io->writeln("\n  ✔ Updated config/packages.php with new packages.");
             }
         }
 
