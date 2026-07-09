@@ -109,6 +109,7 @@ class KernelTest extends TestCase
 
         $this->assertTrue(is_array($container->get('michel.middleware')));
         $this->assertTrue(is_array($container->get('michel.commands')));
+        $this->assertCount(4, $container->get('michel.commands'));
         $this->assertTrue(is_array($container->get('michel.listeners')));
         $this->assertTrue(is_array($container->get('michel.routes')));
         if (PHP_VERSION_ID >= 80000) {

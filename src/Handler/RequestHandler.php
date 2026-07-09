@@ -16,27 +16,25 @@ namespace Michel\Framework\Core\Handler;
 
 use LogicException;
 use Michel\Framework\Core\Debug\DebugDataCollector;
-use Michel\Framework\Core\Http\RequestContext;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
-use function current;
 use function is_string;
-use function next;
 
 final class RequestHandler implements RequestHandlerInterface
 {
     private ContainerInterface $container;
     /**
-     * @var array<MiddlewareInterface, string>
+     * @var array<MiddlewareInterface|string>
      */
     private array $middlewareCollection;
+    private int $index = 0;
     private ?\Closure $then;
 
-    public function __construct(ContainerInterface $container, array $middlewareCollection, \Closure $then = null)
+    public function __construct(ContainerInterface $container, array $middlewareCollection, ?\Closure $then = null)
     {
         $this->container = $container;
         $this->middlewareCollection = $middlewareCollection;
@@ -50,15 +48,15 @@ final class RequestHandler implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $middleware = current($this->middlewareCollection);
-        next($this->middlewareCollection);
-        if ($middleware === false) {
+        if (!isset($this->middlewareCollection[$this->index])) {
             $then = $this->then;
             if ($then instanceof \Closure) {
                 return $then($request);
             }
             throw new LogicException('The Middleware must return an instance of Psr\Http\Message\ResponseInterface.');
         }
+
+        $middleware = $this->middlewareCollection[$this->index++];
 
         if (is_string($middleware)) {
             $middleware = $this->container->get($middleware);

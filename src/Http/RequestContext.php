@@ -46,6 +46,6 @@ class RequestContext
 
     public function getUser(): ?UserInterface
     {
-        return $this->request->getAttribute('user');
+        return $this->request?->getAttribute('user');
     }
 }

@@ -57,7 +57,7 @@ class ExceptionHandler
         }
 
         $mimeType = strtolower($mimeType);
-        if ($mimeType === 'application/json') {
+        if (str_contains($mimeType, 'application/json')) {
             return $this->renderJsonResponse($exception);
         }
         return $this->renderHtmlResponse($exception);
@@ -65,9 +65,17 @@ class ExceptionHandler
 
     public function render(ServerRequestInterface $request, Throwable $exception): ResponseInterface
     {
-        $mimeType = $exception instanceof HttpExceptionInterface ? $exception->getContentType() : $request->getHeaderLine('accept');
+        $mimeType = ($exception instanceof HttpExceptionInterface && $exception->getContentType()) ? $exception->getContentType() : $request->getHeaderLine('accept');
+
+        $route = $request->getAttribute('__route');
+        if ($route && method_exists($route, 'getFormat') && $route->getFormat() === 'json') {
+            $mimeType = 'application/json';
+        }
+        
+        // Let the application decide or rely on standard 'Accept' headers rather than hardcoding /api
         return $this->renderByMimetype($mimeType, $exception);
     }
+
 
     protected function renderJsonResponse(HttpExceptionInterface $exception): ResponseInterface
     {

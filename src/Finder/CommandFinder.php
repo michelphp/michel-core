@@ -9,26 +9,29 @@ declare(strict_types=1);
  * @author     Michel.F
  * @license    Mozilla Public License v2.0 (MPL-2.0)
  *
- * Finder to locate controller classes in directories
+ * Finder to locate command classes in directories or from explicit class names.
  */
 
 namespace Michel\Framework\Core\Finder;
 
-use Michel\Framework\Core\Controller\Controller;
+use Michel\Console\Command\CommandInterface;
 
-final class ControllerFinder extends AbstractClassFinder
+final class CommandFinder extends AbstractClassFinder
 {
     protected function getTargetClassOrInterface(): string
     {
-        return Controller::class;
+        return CommandInterface::class;
     }
 
     protected function getCachePrefix(): string
     {
-        return '';
+        return 'cmd';
     }
 
-    public function findControllerClasses(): array
+    /**
+     * @return string[] Fully-qualified class names implementing CommandInterface
+     */
+    public function findCommandClasses(): array
     {
         return $this->findClasses();
     }

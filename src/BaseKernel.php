@@ -20,6 +20,7 @@ use Michel\Env\DotEnv;
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorHandler;
 use Michel\Framework\Core\ErrorHandler\ExceptionHandler;
+use Michel\Framework\Core\Finder\CommandFinder;
 use Michel\Framework\Core\Finder\ControllerFinder;
 use Michel\Framework\Core\Handler\RequestHandler;
 use Michel\Framework\Core\Http\Exception\HttpExceptionInterface;
@@ -88,7 +89,19 @@ abstract class BaseKernel
             $context->setRequest($request);
 
             $requestHandler = new RequestHandler($this->container, $this->middlewareCollection);
-            $response =  $requestHandler->handle($request);
+            $response = $requestHandler->handle($request);
+
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 400 && $response->getBody()->getSize() === 0) {
+                if ($statusCode === 404) {
+                    throw new \Michel\Framework\Core\Http\Exception\NotFoundException();
+                } elseif ($statusCode === 405) {
+                    throw new \Michel\Framework\Core\Http\Exception\MethodNotAllowedException();
+                } else {
+                    throw new \Michel\Framework\Core\Http\Exception\HttpException($statusCode);
+                }
+            }
+
             return $response;
         } catch (Throwable $exception) {
             if (!$exception instanceof HttpExceptionInterface) {
@@ -255,6 +268,10 @@ abstract class BaseKernel
             ]
         );
         $definitions['michel.services_ids'] = array_keys($definitions);
+        $definitions['michel.commands'] = static function (ContainerInterface $container) use ($commands) {
+            $finder = new CommandFinder($commands, $container->get('michel.current_cache'));
+            return $finder->findCommandClasses();
+        };
         $definitions['michel.controllers'] = static function (ContainerInterface $container) use ($controllers) {
             $scanner = new ControllerFinder($controllers, $container->get('michel.current_cache'));
             return $scanner->findControllerClasses();

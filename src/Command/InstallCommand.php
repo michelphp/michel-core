@@ -76,10 +76,7 @@ PHP
 
             // Add Database Parameters
             $this->appendToConfig($configDir, 'parameters.php', 'parameters', <<<'PHP'
-$parameters['database.host'] = getenv('DATABASE_HOST');
-$parameters['database.db'] = getenv('DATABASE_DB');
-$parameters['database.user'] = getenv('DATABASE_USER');
-$parameters['database.password'] = getenv('DATABASE_PASSWORD');
+$parameters['database.url'] = getenv('DATABASE_URL');
 PHP
             );
         }

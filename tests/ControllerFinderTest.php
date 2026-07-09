@@ -53,7 +53,8 @@ class ControllerFinderTest extends TestCase
             if (!is_dir($cacheDir)) {
                 mkdir($cacheDir, 0777, true);
             }
-            $fileCache = "$cacheDir/" . md5($targetDir) . '.php';
+
+            $fileCache = $cacheDir . '/' . md5('_'.$targetDir) . '.php';
             if (file_exists($fileCache)) {
                 unlink($fileCache);
             }

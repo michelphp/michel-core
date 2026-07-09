@@ -22,7 +22,7 @@ use Psr\Http\Message\ServerRequestInterface;
 final class App
 {
     private array $options;
-    private static App $instance;
+    private static ?App $instance = null;
     private ?ContainerInterface $container = null;
 
     private function __construct(array $options)
@@ -58,6 +58,15 @@ final class App
     public static function init(array $options): void
     {
         self::$instance = new self($options);
+    }
+
+    /**
+     * Resets the application state.
+     * Essential for PHPUnit to guarantee isolation between tests.
+     */
+    public static function reset(): void
+    {
+        self::$instance = null;
     }
 
     public static function createServerRequest(): ServerRequestInterface

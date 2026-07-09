@@ -18,16 +18,6 @@ use LogicException;
 use Michel\Console\CommandRunner;
 use Michel\EventDispatcher\EventDispatcher;
 use Michel\EventDispatcher\ListenerProvider;
-use Michel\Framework\Core\Command\CacheClearCommand;
-use Michel\Framework\Core\Command\DebugContainerCommand;
-use Michel\Framework\Core\Command\DebugEnvCommand;
-use Michel\Framework\Core\Command\DebugRouteCommand;
-use Michel\Framework\Core\Command\LogClearCommand;
-use Michel\Framework\Core\Command\InstallCommand;
-use Michel\Framework\Core\Command\MakeCommandCommand;
-use Michel\Framework\Core\Command\MakeControllerCommand;
-use Michel\Framework\Core\Command\MakeEventCommand;
-use Michel\Framework\Core\Command\MakeListenerCommand;
 use Michel\Framework\Core\Config\ConfigProvider;
 use Michel\Framework\Core\Debug\DebugDataCollector;
 use Michel\Framework\Core\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
@@ -218,16 +208,7 @@ final class MichelCorePackage implements PackageInterface
     public function getCommandSources(): array
     {
         return [
-            CacheClearCommand::class,
-            LogClearCommand::class,
-            MakeControllerCommand::class,
-            MakeCommandCommand::class,
-            DebugEnvCommand::class,
-            DebugContainerCommand::class,
-            DebugRouteCommand::class,
-            InstallCommand::class,
-            MakeEventCommand::class,
-            MakeListenerCommand::class,
+            __DIR__ . '/../Command/',
         ];
     }
 }

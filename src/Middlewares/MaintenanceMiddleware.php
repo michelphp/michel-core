@@ -30,7 +30,7 @@ final class MaintenanceMiddleware implements MiddlewareInterface
     private array $allowedIps;
     private ?Closure $renderer;
 
-    public function __construct(bool $maintenanceMode, ResponseFactoryInterface $responseFactory, array $allowedIps = [], Closure $renderer = null)
+    public function __construct(bool $maintenanceMode, ResponseFactoryInterface $responseFactory, array $allowedIps = [], ?Closure $renderer = null)
     {
         $this->maintenanceMode = $maintenanceMode;
         $this->responseFactory = $responseFactory;

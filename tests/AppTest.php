@@ -31,7 +31,7 @@ class AppTest extends TestCase
 
     protected function tearDown(): void
     {
-        // TODO: Implement tearDown() method.
+        App::reset();
     }
 
     protected function execute(): void
