@@ -27,6 +27,7 @@ use Michel\Framework\Core\Middlewares\ProfilerMiddleware;
 use Michel\Framework\Core\Middlewares\ForceHttpsMiddleware;
 use Michel\Framework\Core\Middlewares\IpRestrictionMiddleware;
 use Michel\Framework\Core\Middlewares\MaintenanceMiddleware;
+use Michel\Package\InstallablePackageInterface;
 use Michel\Package\PackageInterface;
 use Michel\PurePlate\Engine;
 use Michel\Route;
@@ -38,7 +39,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use function getenv;
 
-final class MichelCorePackage implements PackageInterface
+final class MichelCorePackage implements PackageInterface, InstallablePackageInterface
 {
     public function getDefinitions(): array
     {
@@ -210,5 +211,26 @@ final class MichelCorePackage implements PackageInterface
         return [
             __DIR__ . '/../Command/',
         ];
+    }
+
+    public function install(ContainerInterface $container, ?callable $output = null): void
+    {
+        $dirs = [
+            $container->get('michel.cache_dir'),
+            $container->get('michel.logs_dir'),
+        ];
+
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+                if ($output) {
+                    $output(sprintf('    ✔ Created: %s', $dir));
+                }
+            } else {
+                if ($output) {
+                    $output(sprintf('    – Already exists: %s', $dir));
+                }
+            }
+        }
     }
 }
