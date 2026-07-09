@@ -104,10 +104,24 @@ class SetupCommand implements CommandInterface
             return;
         }
 
-        // Run composer require
+        // Run composer require (try normal stable first)
         $command = 'composer require ' . implode(' ', $toInstall) . ' --ansi';
         $io->writeColor("\n  Running: $command\n\n", 'yellow');
-        passthru($command);
+        passthru($command, $returnCode);
+
+        // Fallback if the standard require fails (e.g. minimum-stability issues)
+        if ($returnCode !== 0) {
+            $io->warning("\n  Standard installation failed. Retrying with development versions (@dev)...\n");
+            $toInstallDev = array_map(fn($pkg) => $pkg . ':@dev', $toInstall);
+            $commandFallback = 'composer require ' . implode(' ', $toInstallDev) . ' --ansi';
+            $io->writeColor("  Running: $commandFallback\n\n", 'yellow');
+            passthru($commandFallback, $returnCodeFallback);
+
+            if ($returnCodeFallback !== 0) {
+                $io->error("\n  Setup failed even with @dev versions. Please check the error above.");
+                return;
+            }
+        }
 
         $io->success('Setup complete! Your packages are ready.');
     }

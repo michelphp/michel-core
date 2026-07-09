@@ -213,8 +213,9 @@ abstract class BaseKernel
                     implode('", "', $environments))
             );
         }
-        $this->env =  strtolower($_ENV['APP_ENV']);
-        $this->debug = $_ENV['APP_DEBUG'] ?: ($this->env === 'dev');
+        $this->env = strtolower(getenv('APP_ENV'));
+        $appDebug = getenv('APP_DEBUG');
+        $this->debug = $appDebug ? filter_var($appDebug, FILTER_VALIDATE_BOOLEAN) : ($this->env === 'dev');
     }
 
     private function configureErrorHandling(): void
